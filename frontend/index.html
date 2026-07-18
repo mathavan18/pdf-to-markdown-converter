@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDF to Markdown</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1>PDF &rarr; Markdown</h1>
+      <p>Upload a text-based PDF and get clean Markdown, with tables preserved.</p>
+    </header>
+
+    <section class="upload-card">
+      <div id="dropzone" class="dropzone">
+        <input type="file" id="fileInput" accept="application/pdf,.pdf" hidden />
+        <div class="dropzone-content">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V4M12 4l-4 4M12 4l4 4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p><strong>Drag & drop</strong> a PDF here, or <span class="browse-link">browse</span></p>
+          <p id="fileName" class="file-name"></p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="toggle">
+          <input type="checkbox" id="pageHeadersToggle" checked />
+          <span>Page-break headings (<code>## Page N</code>)</span>
+        </label>
+        <button id="convertBtn" class="primary-btn" disabled>Convert to Markdown</button>
+      </div>
+
+      <div id="statusBar" class="status-bar" hidden></div>
+    </section>
+
+    <section id="resultSection" class="result-section" hidden>
+      <div class="result-actions">
+        <button id="copyBtn" class="secondary-btn">Copy Markdown</button>
+        <button id="downloadBtn" class="secondary-btn">Download .md</button>
+        <span id="pageCount" class="page-count"></span>
+      </div>
+
+      <div class="panes">
+        <div class="pane">
+          <h2>Markdown Source</h2>
+          <textarea id="markdownSource" readonly spellcheck="false"></textarea>
+        </div>
+        <div class="pane">
+          <h2>Live Preview</h2>
+          <div id="markdownPreview" class="markdown-preview"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
