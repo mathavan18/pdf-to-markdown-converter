@@ -17,7 +17,9 @@ Markdown tables. Files are processed in memory only; nothing is persisted.
 │   ├── index.html
 │   ├── app.js
 │   ├── config.js       backend API URL, overwritten at deploy time
-│   └── style.css
+│   ├── style.css
+│   └── gate/            email opt-in page, sits in front of the tool
+│       └── index.html
 ├── render.yaml          Render blueprint for the backend
 └── .github/workflows/deploy-pages.yml   deploys frontend/ to GitHub Pages
 ```
@@ -79,6 +81,23 @@ file or set `window.PDF_TO_MD_API_BASE` before `app.js` loads.
 
 Re-running step 3 (any push to `main` touching `frontend/`) redeploys with
 the current `API_BASE_URL` value.
+
+## Email opt-in gate (`/gate/`)
+
+`frontend/gate/index.html` is a separate landing page — not linked from the
+tool itself — meant for social media bio links. It embeds a hosted form
+(currently a GoHighLevel/LeadConnector form) and is meant to redirect into
+the tool after a successful submission.
+
+- Live at `https://<your-github-username>.github.io/pdf-to-markdown-converter/gate/`.
+- **The redirect-after-submit is configured inside the form builder**, not
+  in this repo's code: in the GoHighLevel form's settings, set the "on
+  submit" action to **Redirect to URL** →
+  `https://<your-github-username>.github.io/pdf-to-markdown-converter/`
+  (the tool's root, no `/gate/`). The embedded iframe is cross-origin, so
+  the redirect has to be configured on the form provider's side.
+- Point your social media bio links at `/gate/` instead of the tool root so
+  visitors opt in before reaching the converter.
 
 ## How it works
 
