@@ -7,21 +7,25 @@ Markdown tables. Files are processed in memory only; nothing is persisted.
 ## Project layout
 
 ```
-pdf-to-markdown/
-├── backend/          FastAPI app (pdfplumber-based extraction)
+.
+├── backend/           FastAPI app (pdfplumber-based extraction)
 │   ├── main.py
 │   ├── converter.py
+│   ├── Dockerfile
 │   └── requirements.txt
-└── frontend/          Plain HTML/JS/CSS UI (no build step)
-    ├── index.html
-    ├── app.js
-    └── style.css
+├── frontend/           Plain HTML/JS/CSS UI (no build step)
+│   ├── index.html
+│   ├── app.js
+│   ├── config.js       backend API URL, overwritten at deploy time
+│   └── style.css
+├── render.yaml          Render blueprint for the backend
+└── .github/workflows/deploy-pages.yml   deploys frontend/ to GitHub Pages
 ```
 
 ## Run the backend
 
 ```bash
-cd pdf-to-markdown/backend
+cd backend
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
@@ -38,19 +42,43 @@ No build tooling or `npm install` required — it's static HTML/JS. Serve it
 with any static file server, for example:
 
 ```bash
-cd pdf-to-markdown/frontend
+cd frontend
 python -m http.server 5500
 ```
 
 Then open `http://localhost:5500` in your browser.
 
-By default the frontend calls the backend at `http://localhost:8000`. To
-point it elsewhere, set `window.PDF_TO_MD_API_BASE` before `app.js` loads,
-e.g. add this in `index.html`:
+By default the frontend calls the backend at `http://localhost:8000` (see
+`frontend/config.js`). To point it elsewhere for local testing, edit that
+file or set `window.PDF_TO_MD_API_BASE` before `app.js` loads.
 
-```html
-<script>window.PDF_TO_MD_API_BASE = "https://your-backend-host";</script>
-```
+## Deploy to the internet
+
+**Backend → Render:**
+
+1. In the [Render dashboard](https://dashboard.render.com), click **New +** →
+   **Blueprint**, connect this GitHub repo. Render detects `render.yaml` and
+   creates a free web service (`pdf-to-markdown-backend`) automatically.
+2. Deploy and copy the resulting URL, e.g.
+   `https://pdf-to-markdown-backend.onrender.com`.
+   (Free-tier services spin down after inactivity — the first request after
+   idling can take ~30-50s to wake up.)
+
+**Frontend → GitHub Pages:**
+
+1. In this repo, go to **Settings → Pages → Build and deployment → Source**
+   and select **GitHub Actions**.
+2. Go to **Settings → Secrets and variables → Actions → Variables** and add
+   a repository variable `API_BASE_URL` set to your Render backend URL from
+   above (no trailing slash).
+3. Push to `main` (or run the **Deploy frontend to GitHub Pages** workflow
+   manually from the **Actions** tab). The workflow injects `API_BASE_URL`
+   into `config.js` at build time and publishes `frontend/` to Pages.
+4. Your app will be live at
+   `https://<your-github-username>.github.io/pdf-to-markdown-converter/`.
+
+Re-running step 3 (any push to `main` touching `frontend/`) redeploys with
+the current `API_BASE_URL` value.
 
 ## How it works
 
